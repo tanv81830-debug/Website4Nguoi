@@ -6,308 +6,202 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f0f1a, #191934);
-    color: white;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    color: #222;
     min-height: 100vh;
 }
 
-/* MENU */
+
+/* =========================
+   THANH MENU
+========================= */
 
 nav {
     width: 100%;
-    padding: 18px 40px;
-
-    background: rgba(0, 0, 0, 0.75);
-
+    padding: 18px 8%;
+    background: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    position: fixed;
-    top: 0;
-    left: 0;
-
-    z-index: 1000;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
 }
 
 .logo {
-    color: #ff69b4;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
-
-    text-shadow: 0 0 15px #ff1493;
+    letter-spacing: 1px;
 }
 
 .menu {
     display: flex;
-    gap: 20px;
+    gap: 25px;
 }
 
 .menu a {
-    color: white;
     text-decoration: none;
+    color: #222;
+    font-weight: bold;
     transition: 0.3s;
 }
 
 .menu a:hover {
-    color: #ff69b4;
+    color: #6c63ff;
 }
 
-/* TRANG */
+
+/* =========================
+   TRANG
+========================= */
 
 .page {
-    min-height: 100vh;
-    padding: 130px 20px 70px;
-}
-
-/* TRANG CHỦ */
-
-.home {
+    min-height: calc(100vh - 80px);
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 50px 20px;
+}
+
+
+/* =========================
+   TRANG CHỦ
+========================= */
+
+.home {
     text-align: center;
 }
 
 .heart {
-    font-size: 110px;
-    color: #ff1493;
-
-    text-shadow:
-        0 0 15px #ff1493,
-        0 0 40px #ff69b4;
-
-    animation: beat 1s infinite;
-}
-
-@keyframes beat {
-    0%, 100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.15);
-    }
-}
-
-h1 {
-    color: #ff69b4;
-
-    text-shadow:
-        0 0 20px #ff1493;
+    font-size: 70px;
+    margin-bottom: 15px;
 }
 
 .home h1 {
-    font-size: 55px;
-    margin: 20px 0;
+    font-size: 50px;
+    margin-bottom: 15px;
 }
 
 .home p {
-    color: #ccc;
     font-size: 20px;
+    margin-bottom: 30px;
 }
 
-/* NÚT */
+
+/* =========================
+   NÚT
+========================= */
 
 .btn {
     display: inline-block;
-
-    margin-top: 30px;
-
-    padding: 14px 30px;
-
-    background: #ff1493;
-
+    padding: 13px 28px;
+    background: #6c63ff;
     color: white;
-
     text-decoration: none;
-
     border-radius: 30px;
-
-    box-shadow:
-        0 0 20px #ff1493;
-
+    font-weight: bold;
     transition: 0.3s;
 }
 
 .btn:hover {
-    background: #ff69b4;
-    transform: scale(1.05);
+    background: #5148d8;
+    transform: translateY(-2px);
 }
 
-/* GIỚI THIỆU */
 
-.center {
-    text-align: center;
-}
-
-.intro-box {
-    max-width: 800px;
-
-    margin: 40px auto;
-
-    padding: 40px;
-
-    background:
-        rgba(255,255,255,0.08);
-
-    border:
-        1px solid
-        rgba(255,255,255,0.15);
-
-    border-radius: 25px;
-
-    line-height: 1.8;
-}
-
-.intro-box p {
-    color: #ddd;
-    font-size: 18px;
-    margin-bottom: 20px;
-}
-
-/* TIỂU SỬ 4 NGƯỜI */
-
-.members {
-    width: 90%;
-    max-width: 1100px;
-
-    margin: 40px auto;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, 1fr);
-
-    gap: 25px;
-}
-
-.card {
-    padding: 35px;
-
-    text-align: center;
-
-    background:
-        rgba(255,255,255,0.08);
-
-    border:
-        1px solid
-        rgba(255,255,255,0.15);
-
-    border-radius: 25px;
-
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-10px);
-
-    box-shadow:
-        0 0 30px
-        rgba(255,20,147,0.5);
-}
-
-.avatar {
-    width: 110px;
-    height: 110px;
-
-    margin: auto;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ff69b4,
-            #8a2be2
-        );
-
-    font-size: 50px;
-}
-
-.card h2 {
-    color: #ff69b4;
-    margin-top: 20px;
-}
-
-/* TIỂU SỬ RIÊNG */
+/* =========================
+   KHUNG TIỂU SỬ
+========================= */
 
 .profile-box {
-    width: 90%;
-    max-width: 700px;
-
-    margin: auto;
-
-    padding: 45px;
-
-    text-align: center;
-
-    background:
-        rgba(255,255,255,0.08);
-
-    border:
-        1px solid
-        rgba(255,255,255,0.15);
-
+    width: 100%;
+    max-width: 600px;
+    background: white;
+    padding: 40px;
     border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
-.profile-box .avatar {
-    width: 150px;
-    height: 150px;
 
-    font-size: 70px;
+/* =========================
+   ẢNH ĐẠI DIỆN
+========================= */
+
+.avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 25px;
+    border: 5px solid white;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+/* =========================
+   TÊN
+========================= */
 
 .profile-box h1 {
-    font-size: 40px;
-    margin: 25px 0;
+    font-size: 32px;
+    margin-bottom: 25px;
 }
+
+
+/* =========================
+   THÔNG TIN
+========================= */
 
 .info {
     text-align: left;
+    margin-bottom: 30px;
+}
 
-    color: #ddd;
-
-    font-size: 18px;
-
-    line-height: 2;
+.info p {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    line-height: 1.5;
 }
 
 .info span {
-    color: #ff69b4;
     font-weight: bold;
+    margin-right: 5px;
 }
 
-/* FOOTER */
+
+/* =========================
+   FOOTER
+========================= */
 
 footer {
     text-align: center;
-
-    padding: 25px;
-
-    color: #888;
-
-    border-top:
-        1px solid #333;
+    padding: 20px;
+    background: white;
+    color: #666;
 }
 
-/* MOBILE */
 
-@media (max-width: 700px) {
+/* =========================
+   ĐIỆN THOẠI
+========================= */
+
+@media (max-width: 600px) {
 
     nav {
         flex-direction: column;
-        gap: 12px;
+        gap: 15px;
     }
 
     .menu {
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
         justify-content: center;
     }
@@ -316,8 +210,12 @@ footer {
         font-size: 38px;
     }
 
-    .members {
-        grid-template-columns: 1fr;
+    .profile-box {
+        padding: 25px;
     }
 
+    .avatar {
+        width: 150px;
+        height: 150px;
+    }
 }
