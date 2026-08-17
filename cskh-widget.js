@@ -1,0 +1,10 @@
+import {watchAuth,watchAdmins,watchConversation,sendMessage} from "./app.js";
+const css=document.createElement("link");css.rel="stylesheet";css.href="cskh-widget.css";document.head.appendChild(css);
+const root=document.createElement("div");root.innerHTML=`<button class="cskh-fab" id="cskhFab" aria-label="Mở CSKH">💬</button><div class="cskh-pop" id="cskhPop"><div class="cskh-head">CSKH <button id="cskhClose">×</button></div><div class="cskh-body"><div class="cskh-admins" id="cskhAdmins"></div><div class="cskh-chat"><div class="cskh-title" id="cskhTitle">Chọn Admin</div><div class="cskh-messages" id="cskhMessages"></div><div class="cskh-compose"><input id="cskhText" placeholder="Nhập tin nhắn..."><button id="cskhSend">Gửi</button></div></div></div></div>`;document.body.appendChild(root);
+let me=null,selected=null,stop=()=>{};
+watchAuth(u=>{me=u;});
+watchAdmins(admins=>{cskhAdmins.innerHTML=admins.map(a=>`<button data-uid="${a.uid||a.id}">${a.name||a.email||"Admin"}</button>`).join("");document.querySelectorAll("#cskhAdmins button").forEach(b=>b.onclick=()=>openAdmin(b.dataset.uid,b.textContent));});
+function openAdmin(uid,name){if(!me){cskhMessages.innerHTML='<div class="cskh-login">Vui lòng đăng nhập để nhắn CSKH.</div>';return;}selected=uid;cskhTitle.textContent=name;document.querySelectorAll("#cskhAdmins button").forEach(b=>b.classList.toggle("active",b.dataset.uid===uid));stop();stop=watchConversation(uid,ms=>{cskhMessages.innerHTML=ms.map(m=>`<div class="cskh-msg ${m.senderUid===me.uid?"mine":""}">${m.text}</div>`).join("");cskhMessages.scrollTop=cskhMessages.scrollHeight;});}
+cskhFab.onclick=()=>cskhPop.classList.toggle("open");cskhClose.onclick=()=>cskhPop.classList.remove("open");
+cskhSend.onclick=async()=>{if(!selected||!cskhText.value.trim())return;try{await sendMessage(selected,cskhText.value);cskhText.value="";}catch(e){alert(e.message)}};
+cskhText.onkeydown=e=>{if(e.key==="Enter")cskhSend.click()};

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Khởi tạo Admin gốc - B3</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="auth-wrap">
+  <section class="auth-card">
+    <div class="brand-big">🪷 B3 ADMIN</div>
+    <h1>Khởi tạo Admin gốc</h1>
+    <p>Chỉ chạy trang này một lần sau khi cấu hình Firebase.</p>
+    <form id="form" class="auth-form">
+      <label>Họ tên Admin gốc</label>
+      <input id="name" value="B3 Admin" required>
+      <label>Email Admin gốc</label>
+      <input id="email" type="email" placeholder="admin@tenmien-cua-ban.vn" required>
+      <label>Mật khẩu</label>
+      <input id="password" type="password" minlength="8" required>
+      <button class="btn primary" type="submit">Tạo Admin gốc</button>
+      <div id="msg" class="auth-error"></div>
+    </form>
+  </section>
+</main>
+
+<script type="module">
+import {
+  createUserWithEmailAndPassword,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+  doc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import { auth, db } from "./app.js";
+
+const form = document.getElementById("form");
+const msg = document.getElementById("msg");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.textContent = "";
+  try {
+    const cred = await createUserWithEmailAndPassword(
+      auth, email.value.trim(), password.value
+    );
+    await updateProfile(cred.user, { displayName: name.value.trim() });
+
+    await setDoc(doc(db, "profiles", cred.user.uid), {
+      uid: cred.user.uid,
+      name: name.value.trim(),
+      email: email.value.trim().toLowerCase(),
+      role: "superadmin",
+      canManageAdmins: true,
+      canUploadClassPhotos: true,
+      canManageMessages: true,
+      canManageSite: true,
+      createdAt: serverTimestamp()
+    });
+
+    msg.className = "auth-success";
+    msg.textContent = "Đã tạo Admin gốc. Hãy đăng nhập bằng tài khoản này.";
+    form.reset();
+  } catch (err) {
+    msg.className = "auth-error";
+    msg.textContent = err.message;
+  }
+});
+</script>
+</body>
+</html>

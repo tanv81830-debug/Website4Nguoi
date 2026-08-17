@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đăng ký - B3</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="auth-wrap">
+  <section class="auth-card">
+    <div class="brand-big">🪷 B3</div>
+    <h1>Đăng ký</h1>
+    <p>Tài khoản mới mặc định là <b>Thành viên</b>.</p>
+
+    <form id="form" class="auth-form">
+      <label>Họ và tên</label>
+      <input id="name" required autocomplete="name">
+
+      <label>Email</label>
+      <input id="email" type="email" required autocomplete="email">
+
+      <label>Mật khẩu</label>
+      <input id="password" type="password" minlength="8" required autocomplete="new-password">
+
+      <button class="btn primary" type="submit">Tạo tài khoản thành viên</button>
+      <div id="msg" class="msg"></div>
+    </form>
+
+    <a class="text-link" href="login.html">Đã có tài khoản? Đăng nhập</a>
+  </section>
+</main>
+
+<script type="module">
+import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { firebaseConfig } from "./firebase-config.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.textContent = "";
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email.value.trim(), password.value);
+    await updateProfile(cred.user, { displayName: name.value.trim() });
+    await setDoc(doc(db, "profiles", cred.user.uid), {
+      uid: cred.user.uid,
+      name: name.value.trim(),
+      email: email.value.trim().toLowerCase(),
+      role: "member",
+      canUploadClassPhotos: false,
+      canManageMessages: false,
+      canManageMembers: false,
+      canManageSite: false,
+      createdAt: new Date().toISOString()
+    });
+    msg.className = "auth-success";
+    msg.textContent = "Đăng ký thành công. Tài khoản hiện là Thành viên.";
+  } catch (err) {
+    msg.className = "auth-error";
+    msg.textContent = err.message;
+  }
+});
+</script>
+<script type="module" src="cskh-widget.js"></script></body>
+</html>

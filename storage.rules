@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Personal photo uploads are not automatically considered final profile photos.
+    match /users/{uid}/pending-profile/{allPaths=**} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Final approved profile photos.
+    match /users/{uid}/profile/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && firestore.get(/databases/(default)/documents/profiles/$(request.auth.uid)).data.role in ["admin","superadmin"]
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Official class activities.
+    match /class-activities/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && firestore.get(/databases/(default)/documents/profiles/$(request.auth.uid)).data.role in ["admin","superadmin"]
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null
+        && firestore.get(/databases/(default)/documents/profiles/$(request.auth.uid)).data.role in ["admin","superadmin"];
+    }
+  }
+}

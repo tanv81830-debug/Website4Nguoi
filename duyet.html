@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duyệt thay đổi - B3 Admin</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav class="nav"><a class="brand" href="index.html">🪷 B3 ADMIN</a>
+<div class="nav-links"><a href="quanly.html">Quản lý</a><a href="inbox.html">Inbox</a><a href="admin-cskh.html">CSKH</a><a href="admin-members.html">42 hồ sơ</a><a href="index.html">Website</a></div></nav>
+<main class="manage-wrap">
+<section class="manage-panel"><span class="eyebrow">APPROVAL CENTER</span><h1>Duyệt thay đổi</h1>
+<p class="muted">Không có thay đổi thành viên nào được áp dụng trước khi Admin duyệt.</p>
+<div id="list" class="approval-list"></div></section>
+</main>
+
+<script type="module">
+import {watchAuth,getProfile,watchPendingProfileRequests,approveProfileRequest,rejectProfileRequest} from "./app.js";
+
+watchAuth(async u=>{
+ if(!u)return location.href="login.html";
+ const me=await getProfile(u.uid);
+ if(!me || !["admin","superadmin"].includes(me.role))return location.href="index.html";
+ watchPendingProfileRequests(items=>{
+  list.innerHTML="";
+  items.forEach(x=>{
+   const d=document.createElement("article");d.className="approval-card";
+   const photo=x.changes?.photoUrl||"images/lopb3.jpg";
+   d.innerHTML=`<img src="${photo}" alt=""><div><h3>${x.uid}</h3><p>Yêu cầu thay đổi ảnh hồ sơ.</p><div class="approval-actions"><button class="btn primary approve">Duyệt</button><button class="btn secondary reject">Từ chối</button></div></div>`;
+   d.querySelector(".approve").onclick=async()=>{await approveProfileRequest(x.id,x,x.changes);};
+   d.querySelector(".reject").onclick=async()=>{await rejectProfileRequest(x.id);};
+   list.appendChild(d);
+  });
+ });
+});
+</script>
+</body>
+</html>

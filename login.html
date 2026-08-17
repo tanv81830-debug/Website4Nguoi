@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đăng nhập - B3</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-art">
+    <div class="auth-lotus">🪷</div>
+    <span class="eyebrow">B3 · THPT PHONG ĐIỀN</span>
+    <h1>Chào mừng trở lại.</h1>
+    <p>Đăng nhập để vào hồ sơ, Inbox và các khu vực được cấp quyền.</p>
+    <a class="auth-back" href="index.html">← Quay về trang chủ</a>
+  </div>
+
+  <section class="auth-card auth-card-modern">
+    <div class="auth-brand">B3</div>
+    <h2>Đăng nhập</h2>
+    <p class="auth-subtitle">Vui lòng nhập đúng thông tin tài khoản.</p>
+
+    <form id="loginForm" class="auth-form">
+      <label for="loginName">Họ và tên</label>
+      <input id="loginName" autocomplete="name" required placeholder="Nguyễn Văn A">
+
+      <label for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" autocomplete="email" required placeholder="ban@example.com">
+
+      <label for="loginPassword">Mật khẩu</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="••••••••">
+
+      <button class="btn primary auth-submit" type="submit">Đăng nhập</button>
+      <div id="loginMsg" class="msg"></div>
+    </form>
+
+    <div class="auth-divider"><span>hoặc</span></div>
+
+    <a class="outline-btn" href="register.html">Tạo tài khoản thành viên</a>
+    <button id="bootstrapBtn" class="outline-btn hidden-admin-bootstrap" type="button">Tạo Admin gốc</button>
+
+    <p class="auth-note">
+      Tài khoản thành viên không tự có quyền Admin. Quyền quản lý phải được cấp và được hệ thống kiểm tra.
+    </p>
+  </section>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { firebaseConfig } from "./firebase-config.js";
+import {
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, writeBatch
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginMsg.className = "msg";
+  loginMsg.textContent = "";
+
+  try {
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      loginEmail.value.trim(),
+      loginPassword.value
+    );
+
+    const profileSnap = await getDoc(doc(db, "profiles", cred.user.uid));
+
+    if (!profileSnap.exists()) {
+      await auth.signOut();
+      throw new Error("Tài khoản chưa có hồ sơ B3.");
+    }
+
+    const profile = profileSnap.data();
+    const entered = loginName.value.trim().toLowerCase();
+    const stored = (profile.name || cred.user.displayName || "").trim().toLowerCase();
+
+    if (entered !== stored) {
+      await auth.signOut();
+      throw new Error("Họ và tên không khớp với tài khoản.");
+    }
+
+    loginMsg.className = "auth-success";
+    loginMsg.textContent = "Đăng nhập thành công.";
+
+    setTimeout(() => {
+      location.href = ["admin","superadmin"].includes(profile.role)
+        ? "quanly.html"
+        : "anhcuatoi.html";
+    }, 400);
+
+  } catch (err) {
+    loginMsg.className = "auth-error";
+    loginMsg.textContent = err.message;
+  }
+});
+
+// First-admin bootstrap is still one-time.
+// It is intentionally kept behind a subtle button instead of exposing credentials in source.
+bootstrapBtn.addEventListener("click", async () => {
+  const name = prompt("Họ tên Admin gốc:");
+  if (!name) return;
+  const email = prompt("Email Admin gốc:");
+  if (!email) return;
+  const password = prompt("Mật khẩu Admin gốc (tối thiểu 8 ký tự):");
+  if (!password || password.length < 8) {
+    alert("Mật khẩu phải có ít nhất 8 ký tự.");
+    return;
+  }
+
+  try {
+    const marker = await getDoc(doc(db, "settings", "adminBootstrap"));
+    if (marker.exists()) {
+      alert("Hệ thống đã có Admin gốc. Hãy đăng nhập bằng tài khoản đó.");
+      return;
+    }
+
+    const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+    await updateProfile(cred.user, { displayName: name.trim() });
+
+    const batch = writeBatch(db);
+    batch.set(doc(db, "profiles", cred.user.uid), {
+      uid: cred.user.uid,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      role: "superadmin",
+      canUploadClassPhotos: true,
+      canManageMessages: true,
+      canManageMembers: true,
+      canManageSite: true,
+      createdAt: new Date().toISOString()
+    });
+    batch.set(doc(db, "settings", "adminBootstrap"), {
+      uid: cred.user.uid,
+      kind: "superadmin-bootstrap",
+      createdAt: new Date().toISOString()
+    });
+    await batch.commit();
+
+    alert("Đã tạo Admin gốc.");
+    location.href = "quanly.html";
+  } catch (err) {
+    alert(err.message);
+  }
+});
+</script>
+<script type="module" src="cskh-widget.js"></script></body>
+</html>

@@ -1,0 +1,107 @@
+</nav>
+
+<main class="manage-wrap">
+  <div class="manage-top">
+    <div><span class="eyebrow">CONTROL CENTER</span><h1>Quản lý B3</h1><div id="who" class="user"></div></div>
+  </div>
+
+  <section id="adminCreateSection" class="manage-panel">
+    <h2>Cấp tài khoản Admin</h2>
+    <p class="muted">Chỉ Super Admin mới thấy phần này.</p>
+    <form id="adminForm" class="auth-form admin-form">
+      <label>Họ tên Admin mới</label><input id="adminName" required>
+      <label>Email Admin mới</label><input id="adminEmail" type="email" required>
+      <label>Mật khẩu</label><input id="adminPassword" type="password" minlength="8" required>
+      <button class="btn primary">Tạo Admin</button>
+      <div id="adminMsg" class="msg"></div>
+    </form>
+  </section>
+
+  <section class="manage-panel">
+    <h2>Quyền quản trị</h2>
+    <div class="permission-grid">
+      <div><b>📷 Upload ảnh lớp</b><span>Quản lý kho ảnh hoạt động.</span></div>
+      <div><b>👥 Thành viên</b><span>Quản lý hồ sơ khi được cấp.</span></div>
+      <div><b>💬 Tin nhắn</b><span>Quản lý Inbox theo quyền.</span></div>
+      <div><b>📝 Nội dung</b><span>Quản lý Tiểu sử / Khoảnh khắc.</span></div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { getApp, initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import { firebaseConfig } from "./firebase-config.js";
+
+const app = getApp();
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let me = null;
+
+auth.onAuthStateChanged(async u => {
+  if (!u) return location.href = "login.html";
+  const s = await getDoc(doc(db, "profiles", u.uid));
+  if (!s.exists()) return location.href = "index.html";
+
+  me = s.data();
+  who.textContent = `${me.name} · ${me.role}`;
+
+  if (me.role !== "superadmin") {
+    document.getElementById("adminCreateSection").style.display = "none";
+  }
+});
+
+logout.onclick = async () => {
+  await signOut(auth);
+  location.href = "index.html";
+};
+
+adminForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  adminMsg.textContent = "";
+
+  if (!me || me.role !== "superadmin") {
+    adminMsg.textContent = "Chỉ Super Admin được cấp Admin.";
+    return;
+  }
+
+  try {
+    // Secondary auth instance creates the new account without signing out the current Super Admin.
+    const secondaryApp = getApps().find(a => a.name === "AdminProvision")
+      || initializeApp(firebaseConfig, "AdminProvision");
+    const secondaryAuth = getAuth(secondaryApp);
+    const secondaryDb = getFirestore(secondaryApp);
+
+    const cred = await createUserWithEmailAndPassword(
+      secondaryAuth, adminEmail.value.trim(), adminPassword.value
+    );
+    await updateProfile(cred.user, { displayName: adminName.value.trim() });
+
+    await setDoc(doc(secondaryDb, "profiles", cred.user.uid), {
+      uid: cred.user.uid,
+      name: adminName.value.trim(),
+      email: adminEmail.value.trim().toLowerCase(),
+      role: "admin",
+      canUploadClassPhotos: true,
+      canManageMessages: true,
+      canManageMembers: false,
+      canManageSite: true,
+      createdAt: new Date().toISOString(),
+      createdBy: auth.currentUser.uid
+    });
+
+    await signOut(secondaryAuth);
+
+    adminMsg.className = "auth-success";
+    adminMsg.textContent = "Đã tạo tài khoản Admin và giữ nguyên phiên Super Admin hiện tại.";
+    adminForm.reset();
+  } catch (err) {
+    adminMsg.className = "auth-error";
+    adminMsg.textContent = err.message;
+  }
+});
+</script>
+</body>
+</html>

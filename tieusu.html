@@ -1,162 +1,27 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Tiểu sử 4 người</title>
-
-    <link rel="stylesheet"
-          href="style.css">
-
-</head>
-
-<body>
-
-<nav>
-
-    <div class="logo">
-        NHÓM 4 NGƯỜI
-    </div>
-
-    <div class="menu">
-
-        <a href="index.html">
-            Trang chủ
-        </a>
-
-        <a href="gioithieu.html">
-            Giới thiệu
-        </a>
-
-        <a href="tieusu.html">
-            Tiểu sử
-        </a>
-
-        <a href="tel:0123456789">
-            Hotline
-        </a>
-
-    </div>
-
-</nav>
-
-
-<section class="page center">
-
-    <h1>
-        TIỂU SỬ 4 NGƯỜI
-    </h1>
-
-    <div class="members">
-
-
-        <!-- NGƯỜI A -->
-
-        <div class="card">
-
-            <div class="avatar">
-                👤
-            </div>
-
-            <h2>
-                Nguyễn Văn A
-            </h2>
-
-            <a
-                href="nguoia.html"
-                class="btn">
-
-                Xem tiểu sử →
-
-            </a>
-
-        </div>
-
-
-        <!-- NGƯỜI B -->
-
-        <div class="card">
-
-            <div class="avatar">
-                👤
-            </div>
-
-            <h2>
-                Trần Văn B
-            </h2>
-
-            <a
-                href="nguoib.html"
-                class="btn">
-
-                Xem tiểu sử →
-
-            </a>
-
-        </div>
-
-
-        <!-- NGƯỜI C -->
-
-        <div class="card">
-
-            <div class="avatar">
-                👤
-            </div>
-
-            <h2>
-                Lê Văn C
-            </h2>
-
-            <a
-                href="nguoic.html"
-                class="btn">
-
-                Xem tiểu sử →
-
-            </a>
-
-        </div>
-
-
-        <!-- NGƯỜI D -->
-
-        <div class="card">
-
-            <div class="avatar">
-                👤
-            </div>
-
-            <h2>
-                Phạm Văn D
-            </h2>
-
-            <a
-                href="nguoid.html"
-                class="btn">
-
-                Xem tiểu sử →
-
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<footer>
-
-    © 2026 - Website tiểu sử 4 người
-
-</footer>
-
-</body>
-
-</html>
+<head><!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tiểu sử - B3</title><link rel="stylesheet" href="style.css"></head><body><nav class="nav">
+<a class="brand" href="index.html">🪷 B3</a>
+<div class="nav-links">
+<a href="index.html">Trang chủ</a><a href="tieusu.html">Tiểu sử</a><a href="hs.html">Hồ sơ học sinh</a>
+<a href="thanhtich.html">Thành tích</a><a href="khoanhkhac.html">Khoảnh khắc</a>
+<a href="loinhan.html">Lời nhắn</a><a href="lienhe.html">Liên hệ</a><a href="inbox.html">Inbox</a>
+<a href="live.html">LIVE</a><a href="login.html">Đăng nhập</a>
+</div></nav>
+<header class="page-header"><img src="images/logo-thptpd.png" class="school-logo" alt=""><p class="eyebrow">OUR STORY</p>
+<h1>TIỂU SỬ B3</h1><p>Một hành trình · Một tập thể · Một thanh xuân</p></header>
+<main class="story-page"><section class="story-hero"><div class="story-hero-copy"><span class="eyebrow">B3 — THPT PHONG ĐIỀN</span>
+<h2>Một tập thể được tạo nên từ những con người khác nhau.</h2><p>B3 là nơi những người bạn xa lạ trở thành những người đồng hành trong một chặng đường đáng nhớ.</p></div>
+<div class="story-photo"><img id="bioImage" src="images/lopb3.jpg" alt="Ảnh B3"></div></section>
+<section class="timeline"><article><span>01</span><div><h3>Bắt đầu</h3><p>Những ngày đầu làm quen, những khuôn mặt mới và những câu chuyện đầu tiên.</p></div></article>
+<article><span>02</span><div><h3>Cùng nhau</h3><p>Cùng học, cùng hoạt động, cùng tạo nên những kỷ niệm riêng của B3.</p></div></article>
+<article><span>03</span><div><h3>Thanh xuân</h3><p>Những điều tưởng như bình thường hôm nay sẽ trở thành ký ức quý giá.</p></div></article></section>
+<section class="story-quote"><span>🪷</span><h2>Một tập thể — Một thanh xuân</h2><p>B3 không chỉ là tên một lớp. Đó là những con người và những câu chuyện tạo nên một mùa thanh xuân.</p></section></main>
+<footer><h2>B3 🪷</h2><p>THPT PHONG ĐIỀN</p></footer>
+<script type="module">
+import {db} from "./app.js"; import {doc,getDoc} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+try{const s=await getDoc(doc(db,"siteContent","images"));if(s.exists()&&s.data().bioUrl)document.getElementById("bioImage").src=s.data().bioUrl;}catch(e){}
+</script><script type="module" src="cskh-widget.js"></script></body></html>

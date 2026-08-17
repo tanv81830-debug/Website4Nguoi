@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Khoảnh khắc - B3</title><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="nav"><a class="brand" href="index.html">🪷 B3</a><div class="nav-links"><a href="index.html">Trang chủ</a><a href="hs.html">Hồ sơ</a><a href="tieusu.html">Tiểu sử</a><a href="lienhe.html">Liên hệ</a></div></nav>
+<header class="page-header"><img src="images/logo-thptpd.png" class="school-logo" alt=""><span class="eyebrow">MEMORIES</span><h1>KHOẢNH KHẮC</h1><p>Ảnh hoạt động được Admin cập nhật.</p></header>
+<main class="gallery-page"><section class="gallery-grid" id="gallery"></section></main>
+<footer><h2>B3 🪷</h2><p>THPT PHONG ĐIỀN</p></footer>
+<script type="module">
+import {watchClassActivities} from "./app.js";
+const gallery=document.getElementById("gallery");
+watchClassActivities(items=>{
+ gallery.innerHTML="";
+ if(!items.length){gallery.innerHTML='<div class="gallery-empty">Chưa có ảnh hoạt động.</div>';return;}
+ items.forEach(x=>{
+  const f=document.createElement("figure");f.className="activity-card";
+  f.innerHTML=`<img src="${x.url}" alt="${x.title}"><figcaption>${x.title}</figcaption>`;
+  gallery.appendChild(f);
+ });
+});
+</script>
+<script type="module" src="cskh-widget.js"></script></body>
+</html>

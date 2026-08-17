@@ -1,0 +1,27 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liên hệ - B3</title><link rel="stylesheet" href="style.css"></head><body><nav class="nav">
+<a class="brand" href="index.html">🪷 B3</a>
+<div class="nav-links">
+<a href="index.html">Trang chủ</a><a href="tieusu.html">Tiểu sử</a><a href="hs.html">Hồ sơ học sinh</a>
+<a href="thanhtich.html">Thành tích</a><a href="khoanhkhac.html">Khoảnh khắc</a>
+<a href="loinhan.html">Lời nhắn</a><a href="lienhe.html">Liên hệ</a><a href="inbox.html">Inbox</a>
+<a href="live.html">LIVE</a><a href="login.html">Đăng nhập</a>
+</div></nav>
+<header class="page-header"><img src="images/logo-thptpd.png" class="school-logo" alt=""><p class="eyebrow">CONNECT WITH B3</p>
+<h1>LIÊN HỆ</h1><p>Gửi lời nhắn trực tiếp đến Ban quản trị</p></header>
+<main class="contact-page"><section class="contact-grid">
+<article class="contact-card"><div class="contact-icon">🏫</div><h3>Trường</h3><p>THPT Phong Điền</p></article>
+<article class="contact-card"><div class="contact-icon">🪷</div><h3>Tập thể</h3><p>Lớp B3</p></article>
+<article class="contact-card"><div class="contact-icon">📩</div><h3>Tiếp nhận</h3><p>Tin nhắn được chuyển tới email Admin.</p></article>
+</section>
+<section class="contact-form"><div class="contact-form-head"><span class="eyebrow">MESSAGE</span><h2>Gửi liên hệ</h2><p>Thay FORM_ID bằng Form ID nhận email của Admin.</p></div>
+<form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+<label>Họ và tên</label><input name="name" required><label>Email</label><input type="email" name="email" required>
+<label>Chủ đề</label><input name="subject" required><label>Nội dung</label><textarea name="message" rows="7" required></textarea>
+<input type="hidden" name="_subject" value="Liên hệ mới từ website B3"><button class="btn primary">Gửi tới Admin →</button>
+<div id="contactMsg" class="msg"></div></form></section></main>
+<footer><h2>B3 🪷</h2><p>THPT PHONG ĐIỀN</p></footer>
+<script>
+const f=document.getElementById("contactForm"),m=document.getElementById("contactMsg");
+f.addEventListener("submit",async e=>{e.preventDefault();try{const r=await fetch(f.action,{method:"POST",body:new FormData(f),headers:{"Accept":"application/json"}});if(!r.ok)throw new Error();m.className="auth-success";m.textContent="Đã gửi liên hệ tới Admin.";f.reset()}catch(err){m.className="auth-error";m.textContent="Chưa gửi được. Kiểm tra Form ID."}});
+</script><script type="module" src="cskh-widget.js"></script></body></html>

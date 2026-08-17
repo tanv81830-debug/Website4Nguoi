@@ -1,0 +1,310 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================
+    // HÀM KIỂM TRA ĐĂNG NHẬP
+    // =========================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Lấy vai trò của người dùng từ profiles
+    function role() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/profiles/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && role() in ["admin", "superadmin"];
+    }
+
+    function isSuperAdmin() {
+      return signedIn()
+        && role() == "superadmin";
+    }
+
+
+    // =========================
+    // PROFILES
+    // =========================
+
+    match /profiles/{uid} {
+
+      // Người dùng xem hồ sơ của chính mình.
+      // Admin/Superadmin xem được hồ sơ.
+      allow read: if signedIn()
+        && (request.auth.uid == uid || isAdmin());
+
+      // Đăng ký tài khoản mới.
+      // Chỉ được tạo hồ sơ cho chính UID đăng nhập.
+      // Không được tự tạo admin/superadmin.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == "member";
+
+      // Chỉ Admin/Superadmin được sửa hồ sơ.
+      allow update: if isAdmin();
+
+      // Chỉ Admin/Superadmin được xóa hồ sơ.
+      allow delete: if isAdmin();
+    }
+
+
+    // =========================
+    // YÊU CẦU SỬA HỒ SƠ
+    // =========================
+
+    match /profileRequests/{requestId} {
+
+      // Member gửi yêu cầu sửa hồ sơ.
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == "pending";
+
+      // Người gửi xem yêu cầu của mình.
+      // Admin xem tất cả.
+      allow read: if signedIn()
+        && (
+          resource.data.uid == request.auth.uid
+          || isAdmin()
+        );
+
+      // Admin xử lý yêu cầu.
+      allow update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // YÊU CẦU THAY ĐỔI NỘI DUNG
+    // =========================
+
+    match /contentRequests/{requestId} {
+
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == "pending";
+
+      allow read: if signedIn()
+        && (
+          resource.data.uid == request.auth.uid
+          || isAdmin()
+        );
+
+      allow update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // NỘI DUNG WEBSITE
+    // =========================
+
+    match /siteContent/{docId} {
+
+      // Nội dung công khai.
+      allow read: if true;
+
+      // Chỉ Admin/Superadmin chỉnh sửa.
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // ẢNH HOẠT ĐỘNG
+    // =========================
+
+    match /classActivities/{activityId} {
+
+      // Người dùng có thể xem ảnh hoạt động.
+      allow read: if true;
+
+      // Chỉ Admin/Superadmin quản lý.
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // HỘP THƯ ADMIN / CSKH
+    // =========================
+
+    match /adminInbox/{messageId} {
+
+      // Người đã đăng nhập được gửi tin.
+      allow create: if signedIn();
+
+      // Người đăng nhập có thể đọc.
+      // Admin có thể quản lý toàn bộ.
+      allow read: if signedIn();
+
+      // Chỉ Admin/Superadmin xử lý/xóa.
+      allow update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // CÀI ĐẶT WEBSITE
+    // =========================
+
+    match /siteSettings/{settingId} {
+
+      // Một số cấu hình website cần đọc công khai.
+      allow read: if true;
+
+      // Chỉ Admin/Superadmin thay đổi.
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // HỘI THOẠI / TIN NHẮN
+    // =========================
+
+    match /conversations/{conversationId} {
+
+      // Người đăng nhập có thể đọc hội thoại.
+      allow read: if signedIn();
+
+      // Người đăng nhập có thể tạo hội thoại.
+      allow create: if signedIn();
+
+      // Chỉ Admin/Superadmin quản lý hội thoại.
+      allow update, delete: if isAdmin();
+    }
+
+
+    match /conversations/{conversationId}/messages/{messageId} {
+
+      // Người đăng nhập được đọc/gửi tin.
+      allow read, create: if signedIn();
+
+      // Admin/Superadmin được xử lý/xóa.
+      allow update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // ADMIN BOOTSTRAP
+    // =========================
+
+    match /settings/adminBootstrap {
+
+      // Chỉ Superadmin đọc.
+      allow read: if isSuperAdmin();
+
+      // Chỉ cho phép tạo marker nếu chưa tồn tại.
+      allow create: if signedIn()
+        && !exists(
+          /databases/$(database)/documents/settings/adminBootstrap
+        );
+
+      // Chỉ Superadmin thay đổi/xóa.
+      allow update, delete: if isSuperAdmin();
+    }
+
+
+    // =========================
+    // LỜI MỜI ADMIN
+    // =========================
+
+    match /adminInvites/{inviteId} {
+
+      // Chỉ Superadmin quản lý lời mời Admin.
+      allow read, create, update, delete: if isSuperAdmin();
+    }
+
+
+    // =========================
+    // USERS
+    // =========================
+
+    match /users/{uid} {
+
+      // Người dùng xem dữ liệu của mình.
+      // Admin xem dữ liệu người dùng.
+      allow read: if signedIn()
+        && (
+          request.auth.uid == uid
+          || isAdmin()
+        );
+
+      // Người dùng chỉ được tạo dữ liệu cho chính mình.
+      allow create: if signedIn()
+        && request.auth.uid == uid;
+
+      // Admin được cập nhật.
+      allow update: if signedIn()
+        && (
+          request.auth.uid == uid
+          || isAdmin()
+        );
+
+      // Chỉ Admin/Superadmin được xóa.
+      allow delete: if isAdmin();
+    }
+
+
+    // =========================
+    // HỒ SƠ
+    // =========================
+
+    match /hoso/{documentId} {
+
+      // Người đăng nhập được xem hồ sơ.
+      allow read: if signedIn();
+
+      // Người đăng nhập có thể tạo/cập nhật hồ sơ.
+      allow create, update: if signedIn();
+
+      // Chỉ Admin/Superadmin xóa.
+      allow delete: if isAdmin();
+    }
+
+
+    match /hoSo/{documentId} {
+
+      allow read: if signedIn();
+
+      allow create, update: if signedIn();
+
+      allow delete: if isAdmin();
+    }
+
+
+    // =========================
+    // LỚP HỌC
+    // =========================
+
+    match /classes/{classId} {
+
+      allow read: if true;
+
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // THÔNG BÁO
+    // =========================
+
+    match /notifications/{notificationId} {
+
+      allow read: if signedIn();
+
+      allow create, update, delete: if isAdmin();
+    }
+
+
+    // =========================
+    // MẶC ĐỊNH: KHÓA TẤT CẢ
+    // =========================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

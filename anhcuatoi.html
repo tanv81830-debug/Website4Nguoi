@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="vi">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ảnh của tôi - B3</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<nav class="nav"><a class="brand" href="index.html">🪷 B3</a>
+<div class="nav-links"><a href="hs.html">Hồ sơ</a><a href="khoanhkhac.html">Khoảnh khắc</a><a href="quanly.html">Quản lý</a></div></nav>
+
+<main class="portal">
+<section class="upload-member-panel">
+<span class="eyebrow">THÀNH VIÊN</span>
+<h1>Đề xuất ảnh hồ sơ</h1>
+<p class="muted">Ảnh mới sẽ chờ Admin duyệt. Ảnh chỉ xuất hiện chính thức sau khi được duyệt.</p>
+
+<div class="member-photo-preview"><img id="preview" src="images/lopb3.jpg" alt="Ảnh hiện tại"></div>
+<form id="form" class="auth-form">
+<label>Chọn ảnh mới</label><input id="photo" type="file" accept="image/*" required>
+<button class="btn primary">Gửi yêu cầu duyệt</button>
+<div id="msg" class="msg"></div>
+</form>
+<div id="requests" class="request-list"></div>
+</section>
+</main>
+
+<script type="module">
+import {watchAuth, getProfile, submitProfileChangeRequest, watchMyProfileRequests, storage} from "./app.js";
+import {ref,uploadBytes,getDownloadURL} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+
+let me;
+watchAuth(async u=>{
+  if(!u)return location.href="login.html";
+  me=await getProfile(u.uid);
+  if(me?.photoUrl)preview.src=me.photoUrl;
+});
+photo.onchange=()=>{if(photo.files[0])preview.src=URL.createObjectURL(photo.files[0]);};
+
+form.onsubmit=async e=>{
+ e.preventDefault();msg.textContent="";
+ try{
+  const f=photo.files[0];
+  const path=`users/${me.uid}/pending-profile/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g,"_")}`;
+  const r=ref(storage,path);
+  await uploadBytes(r,f,{contentType:f.type});
+  const url=await getDownloadURL(r);
+  await submitProfileChangeRequest({photoUrl:url,photoPath:path});
+  msg.className="auth-success";msg.textContent="Đã gửi yêu cầu. Chờ Admin duyệt.";
+  e.target.reset();
+ }catch(err){msg.className="auth-error";msg.textContent=err.message;}
+};
+
+watchMyProfileRequests(items=>{
+ requests.innerHTML=items.map(x=>`<div class="request-card"><b>Ảnh hồ sơ</b><span>${x.status==="pending"?"Đang chờ Admin":x.status==="approved"?"Đã duyệt":"Đã từ chối"}</span></div>`).join("");
+});
+</script>
+<script type="module" src="cskh-widget.js"></script></body>
+</html>

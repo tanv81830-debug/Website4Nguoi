@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quản lý ảnh hoạt động - B3</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="nav"><a class="brand" href="index.html">🪷 B3 ADMIN</a>
+<div class="nav-links"><a href="quanly.html">Quản lý</a><a href="khoanhkhac.html">Khoảnh khắc</a><a href="inbox.html">Inbox</a></div></nav>
+
+<main class="portal">
+<section class="manage-panel">
+<span class="eyebrow">ADMIN</span><h1>Ảnh hoạt động lớp</h1>
+<p class="muted">Chỉ tài khoản được cấp quyền Admin mới được upload.</p>
+
+<form id="activityForm" class="auth-form">
+<label>Tên hoạt động</label><input id="title" placeholder="Ví dụ: Hội trại 2026" required>
+<label>Ảnh</label><input id="file" type="file" accept="image/*" required>
+<button class="btn primary">Đăng ảnh hoạt động</button>
+<div id="msg" class="msg"></div>
+</form>
+</section>
+
+<section class="manage-panel"><h2>Ảnh đã đăng</h2><div id="grid" class="activity-admin-grid"></div></section>
+</main>
+
+<script type="module">
+import {watchAuth, getProfile, uploadClassActivityPhoto, watchClassActivities, storage} from "./app.js";
+import {deleteDoc,doc} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import {ref,deleteObject} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-storage.js";
+let me;
+watchAuth(async u=>{
+  if(!u) return location.href="login.html";
+  me=await getProfile(u.uid);
+  if(!me || !["admin","superadmin"].includes(me.role)) return location.href="index.html";
+});
+activityForm.addEventListener("submit",async e=>{
+ e.preventDefault(); msg.textContent="";
+ try{
+   await uploadClassActivityPhoto(file.files[0],title.value,me.uid);
+   msg.className="auth-success";msg.textContent="Đã đăng ảnh hoạt động.";
+   e.target.reset();
+ }catch(err){msg.className="auth-error";msg.textContent=err.message;}
+});
+watchClassActivities(items=>{
+ grid.innerHTML="";
+ items.forEach(x=>{
+   const el=document.createElement("article");el.className="activity-admin-card";
+   el.innerHTML=`<img src="${x.url}" alt="${x.title}"><div><h3>${x.title}</h3><button data-id="${x.id}" data-path="${x.storagePath}" class="delete-activity">Xóa</button></div>`;
+   grid.appendChild(el);
+ });
+});
+grid.addEventListener("click",async e=>{
+ const b=e.target.closest(".delete-activity"); if(!b)return;
+ if(!confirm("Xóa ảnh này?"))return;
+ try{
+   await deleteObject(ref(storage,b.dataset.path));
+   await deleteDoc(doc((await import("./app.js")).db,"classActivities",b.dataset.id));
+ }catch(err){alert(err.message);}
+});
+</script>
+</body>
+</html>
